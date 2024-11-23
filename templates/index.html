@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Home</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .container {
+            display: flex;
+            flex-direction: column;
+        }
+        .row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .filename {
+            flex: 1;
+        }
+        .buttons {
+            display: flex;
+            gap: 10px;
+        }
+    </style>
+    {% if current_user.is_authenticated %}
+        {% if user.is_admin %}
+            <a href="{{ url_for('main.upload_file') }}" class="btn">Upload a new file</a>
+            <a href="{{ url_for('main.admin') }}" class="btn">Statistic</a>
+        {% endif %}
+        <a href="{{ url_for('auth.logout') }}" class="btn">Logout</a>
+    {% else %}
+        <a href="{{ url_for('auth.login') }}" class="btn">Login</a>
+        <a href="{{ url_for('auth.register') }}" class="btn">Register</a>
+    {% endif %}
+</head>
+<body>
+    <h1>Welcome, {{ user.username }}</h1>
+    <h2>Files</h2>
+    <div class="container">
+        {% for file in files %}
+            <div class="row">
+                <div class="filename">{{ file.filename }} {% if user.is_admin %}| Downloaded {{ download_stats.get(file.filename, 0) }} times{% endif %}</div>
+                <div class="buttons">
+                    {% if current_user.is_authenticated %}
+                        <a href="{{ url_for('main.download_file', file_id=file.id) }}" class="btn">Download</a>
+                    {% endif %}
+                    {% if user.is_admin %}
+                        <a href="{{ url_for('main.edit_file', file_id=file.id) }}" class="btn">Edit</a>
+                        <a href="{{ url_for('main.delete_file', file_id=file.id) }}" class="btn">Delete</a>
+                        <a href="{{ url_for('main.logs', file_id=file.id) }}" class="btn">Logs</a>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</body>
+</html>
